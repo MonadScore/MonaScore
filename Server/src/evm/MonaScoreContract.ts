@@ -1,13 +1,15 @@
+import BaseContract from './BaseContract';
+
 /**
  * Class for retrieving user score and referral information from the blockchain
  */
-export default class MonaScore {
+export default class MonaScoreContract extends BaseContract {
   /**
    * Gets the points balance for a user address
    * @param address The user's Ethereum address
    * @returns Promise resolving to the user's point balance
    */
-  public static async getPoints(address: string): Promise<number> {
+  public async getPoints(address: string): Promise<number> {
     throw new Error('Not implemented');
   }
 
@@ -16,7 +18,7 @@ export default class MonaScore {
    * @param address The user's Ethereum address
    * @returns Promise resolving to the user's referral code
    */
-  public static async getReferralCode(address: string): Promise<string> {
+  public async getReferralCode(address: string): Promise<string> {
     throw new Error('Not implemented');
   }
 
@@ -25,7 +27,7 @@ export default class MonaScore {
    * @param address The user's Ethereum address
    * @returns Promise resolving to the referrer's address
    */
-  public static async getReferrer(address: string): Promise<string> {
+  public async getReferrer(address: string): Promise<string> {
     throw new Error('Not implemented');
   }
 
@@ -34,7 +36,17 @@ export default class MonaScore {
    * @param address The user's Ethereum address
    * @returns Promise resolving to array of message strings
    */
-  public static async getMessageHistory(address: string): Promise<string[]> {
+  public async getMessageHistory(address: string): Promise<string[]> {
+    throw new Error('Not implemented');
+  }
+
+  /**
+   * Verifies a transaction
+   * @param address The user's Ethereum address
+   * @param txHash The transaction hash
+   * @returns Promise resolving to true if the transaction is valid, false otherwise
+   */
+  public async verifyTx(address: string, txHash: string): Promise<boolean> {
     throw new Error('Not implemented');
   }
 }

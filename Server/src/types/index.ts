@@ -1,4 +1,5 @@
 /**
  * Reimport types
  */
-export { User, MessageHistory } from './account';
+export { User, MessageHistory } from './user';
+export { UserRequestUpdateBody, UserRequestGetParams } from './userRequests';
