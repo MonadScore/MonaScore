@@ -8,5 +8,5 @@
 
 #### Links:
 
-- [Account requests definition](/src/app/definitions/accountEndpointsDefinition.ts)
+- [Account requests definition](./src/app/definitions/userRequestsDefinition.ts)
 - [Account requests types](./src/types/userRequests.ts)

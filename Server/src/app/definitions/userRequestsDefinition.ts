@@ -1,4 +1,4 @@
-export const accountEndpointsDefinitions = {
+export const userRequestsDefinitions = {
   userRegister: {
     path: '/api/user/register',
     method: 'post',

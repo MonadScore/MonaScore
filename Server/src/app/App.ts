@@ -1,6 +1,6 @@
 import bodyParser, { BodyParser } from 'body-parser';
 import express, { Express } from 'express';
-import UserEndpoints from './UserEndpoints';
+import UserRequestsInit from './UserRequestsInit';
 import DBClient from '../database/DBClient';
 import UserRequestHandler from './UserRequestHandler';
 import MonaScoreContract from '../evm/MonaScoreContract';
@@ -55,12 +55,12 @@ export default function App() {
     }
 
     /**
-     * Registers endpoints with the Express application
-     * @param {Function} registerCb - Callback function to register endpoints
+     * Registers requests with the Express application
+     * @param {Function} registerCb - Callback function to register requests
      * @param {Express} registerCb.app - The Express application instance
      * @param {BodyParser} registerCb.bodyParser - The body-parser middleware
      */
-    public registerEndpoints(
+    public registerRequests(
       registerCb: (app: Express, bodyParser: BodyParser, userHandler: UserRequestHandler) => void
     ) {
       registerCb(this.app, bodyParser, this.userRequestHandler);
@@ -69,7 +69,7 @@ export default function App() {
     }
   })();
 
-  server.registerEndpoints(UserEndpoints);
+  server.registerRequests(UserRequestsInit);
 
   return server;
 }

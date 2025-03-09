@@ -1,7 +1,7 @@
 import { User } from './user';
 
 /**
- * Body for the user register/claim endpoint
+ * Body for the user register/claim request
  */
 export type UserRequestUpdateBody = {
   user: User;
@@ -9,7 +9,7 @@ export type UserRequestUpdateBody = {
 };
 
 /**
- * Params for the user get endpoint
+ * Params for the user get request
  */
 export type UserRequestGetParams = {
   address: string;

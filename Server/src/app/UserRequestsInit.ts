@@ -1,15 +1,15 @@
 import { BodyParser } from 'body-parser';
 import { Express, Request, Response } from 'express';
-import { accountEndpointsDefinitions } from './definitions/accountEndpointsDefinition';
+import { userRequestsDefinitions } from './definitions/userRequestsDefinition';
 import UserRequestHandler from './UserRequestHandler';
 
-export default function UserEndpoints(
+export default function UserRequestsInit(
   app: Express,
   bodyParser: BodyParser,
   userHandler: UserRequestHandler
 ) {
   app.post(
-    accountEndpointsDefinitions.userRegister.path,
+    userRequestsDefinitions.userRegister.path,
     bodyParser.json(),
     async (req: Request, res: Response) => {
       await userHandler.handleUserRegister(req, res);
@@ -17,7 +17,7 @@ export default function UserEndpoints(
   );
 
   app.post(
-    accountEndpointsDefinitions.userClaim.path,
+    userRequestsDefinitions.userClaim.path,
     bodyParser.json(),
     async (req: Request, res: Response) => {
       await userHandler.handleUserClaim(req, res);
@@ -25,14 +25,14 @@ export default function UserEndpoints(
   );
 
   app.post(
-    accountEndpointsDefinitions.userMessage.path,
+    userRequestsDefinitions.userMessage.path,
     bodyParser.json(),
     async (req: Request, res: Response) => {
       await userHandler.handleUserMessage(req, res);
     }
   );
 
-  app.get(accountEndpointsDefinitions.userData.path, async (req: Request, res: Response) => {
+  app.get(userRequestsDefinitions.userData.path, async (req: Request, res: Response) => {
     await userHandler.handleGetUser(req, res);
   });
 }
