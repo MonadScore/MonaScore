@@ -4,7 +4,7 @@ import { User } from './user';
  * Body for the user register/claim request
  */
 export type UserRequestUpdateBody = {
-  user: User;
+  user: Pick<User, 'address'>;
   tx: string; // transaction hash
 };
 

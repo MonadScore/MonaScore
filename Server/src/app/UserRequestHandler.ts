@@ -28,43 +28,29 @@ export default class UserRequestHandler {
       return;
     }
 
-    const isTxValid = await this.monaScoreContract.verifyTx(user.address, tx);
+    const userFromContract = await this.monaScoreContract.getUser(user.address);
 
-    if (!isTxValid) {
-      res.status(400).send({ error: 'Invalid transaction' });
+    if (!userFromContract) {
+      res.status(400).send({ error: 'User not found in evm' });
       return;
     }
 
     const existingUser = await this.dbClient.getUserByAddress(user.address);
 
-    let userFromDB: User;
-
     if (!existingUser) {
-      userFromDB = await this.dbClient.addUser(user);
-    } else {
-      userFromDB = existingUser;
+      await this.dbClient.addUser(userFromContract);
 
-      if (existingUser.referrer) {
-        const referrerUser = await this.dbClient.getUserByReferralCode(existingUser.referrer);
+      if (userFromContract.referrer) {
+        const referrerUser = await this.dbClient.getUserByReferralCode(userFromContract.referrer);
 
-        // TODO: fetch referred user updated data from contract or not?
-        if (referrerUser) {
-          referrerUser.points += 1;
-          await this.dbClient.updateUser(referrerUser);
-        }
+        const referrerUserFromContract = await this.monaScoreContract.getUser(referrerUser.address);
+        await this.dbClient.updateUser(referrerUserFromContract);
       }
     }
 
-    if (user.referrer) {
-      const referrerUser = await this.dbClient.getUserByReferralCode(user.referrer);
-
-      if (referrerUser) {
-        referrerUser.points += 1;
-        await this.dbClient.updateUser(referrerUser);
-      }
-    }
-
-    res.status(200).send({ points: userFromDB.points, referralCode: userFromDB.referralCode });
+    res
+      .status(200)
+      .send({ points: userFromContract.points, referralCode: userFromContract.referralCode });
   }
 
   /**
@@ -78,23 +64,18 @@ export default class UserRequestHandler {
       return;
     }
 
-    const isTxValid = await this.monaScoreContract.verifyTx(user.address, tx);
+    const userFromContract = await this.monaScoreContract.getUser(user.address);
 
-    if (!isTxValid) {
-      res.status(400).send({ error: 'Invalid transaction' });
+    if (!userFromContract) {
+      res.status(400).send({ error: 'User not found in evm' });
       return;
     }
 
-    const userFromDB = await this.dbClient.getUserByAddress(user.address);
+    await this.dbClient.updateUser(userFromContract);
 
-    if (!userFromDB) {
-      res.status(400).send({ error: 'User not found' });
-      return;
-    }
-
-    await this.dbClient.updateUser(user);
-
-    res.status(200).send({ points: userFromDB.points, referralCode: userFromDB.referralCode });
+    res
+      .status(200)
+      .send({ points: userFromContract.points, referralCode: userFromContract.referralCode });
   }
 
   /**
@@ -108,16 +89,18 @@ export default class UserRequestHandler {
       return;
     }
 
-    const isTxValid = await this.monaScoreContract.verifyTx(user.address, tx);
+    const userFromContract = await this.monaScoreContract.getUser(user.address);
 
-    if (!isTxValid) {
-      res.status(400).send({ error: 'Invalid transaction' });
+    if (!userFromContract) {
+      res.status(400).send({ error: 'User not found in evm' });
       return;
     }
 
-    await this.dbClient.updateUser(user);
+    await this.dbClient.updateUser(userFromContract);
 
-    res.status(200).send({ points: user.points, referralCode: user.referralCode });
+    res
+      .status(200)
+      .send({ points: userFromContract.points, referralCode: userFromContract.referralCode });
   }
 
   // TODO: Anybody can fetch user data, mb add auth?
@@ -127,6 +110,7 @@ export default class UserRequestHandler {
   async handleGetUser(req: Request, res: Response) {
     const { address } = req.params as UserRequestGetParams;
 
+    // TODO: Fetch from contract or from db?
     const user = await this.dbClient.getUserByAddress(address);
 
     if (!user) {

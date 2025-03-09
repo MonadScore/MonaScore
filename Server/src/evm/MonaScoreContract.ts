@@ -1,3 +1,4 @@
+import { User } from '../types';
 import BaseContract from './BaseContract';
 
 /**
@@ -37,6 +38,10 @@ export default class MonaScoreContract extends BaseContract {
    * @returns Promise resolving to array of message strings
    */
   public async getMessageHistory(address: string): Promise<string[]> {
+    throw new Error('Not implemented');
+  }
+
+  public async getUser(address: string): Promise<User> {
     throw new Error('Not implemented');
   }
 
