@@ -1,5 +1,5 @@
 import { User } from '../types';
-
+import pool from 'db';
 /**
  * Database client for interacting with the database
  */
@@ -10,7 +10,13 @@ export default class DBClient {
    * @returns Promise resolving to the User object
    */
   public getUserByAddress(address: string): Promise<User> {
-    throw new Error('Not implemented');
+    const client = await pool.connect();
+    try {
+      const { rows } = await client.query('SELECT address,points,referral_code,referer,last_claim,registered FROM users WHERE address = $1', [address]);
+      return rows[0];
+    } finally {
+      client.release();
+    }
   }
 
   /**
@@ -56,6 +62,12 @@ export default class DBClient {
    * @returns Promise resolving to the matching User
    */
   public getUserByReferralCode(referralCode: string): Promise<User> {
-    throw new Error('Not implemented');
+    const client = await pool.connect();
+    try {
+      const { rows } = await client.query('SELECT address FROM users WHERE referral_code = $1', [referralCode]);
+      return rows[0];
+    } finally {
+      client.release();
+    }
   }
 }
