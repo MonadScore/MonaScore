@@ -12,7 +12,7 @@ export default class DBClient {
   public async getUserByAddress(address: string): Promise<User> {
     const client = await pool.connect();
     try {
-      const { rows } = await client.query('SELECT address,points,referral_code,referer,last_claim,registered FROM users WHERE address = $1', [address]);
+      const { rows } = await client.query('SELECT address,points,referral_code,referrer,last_claim,registered FROM users WHERE address = $1', [address]);
       if(rows && rows.length > 0){
         const result = {
           address: rows[0].address,
@@ -126,7 +126,7 @@ export default class DBClient {
   public async getUserByReferralCode(referralCode: string): Promise<User> {
     const client = await pool.connect();
     try {
-      const { rows } = await client.query('SELECT address,points,referral_code,referer,last_claim,registered FROM users WHERE referral_code = $1', [referralCode]);
+      const { rows } = await client.query('SELECT address,points,referral_code,referrer,last_claim,registered FROM users WHERE referral_code = $1', [referralCode]);
       if(rows && rows.length > 0){
         const result = {
           address: rows[0].address,
