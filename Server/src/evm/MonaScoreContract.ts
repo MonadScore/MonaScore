@@ -22,10 +22,10 @@ export default class MonaScoreContract extends BaseContract {
       if(user && user[5]){
         return user[1];
       }else{
-        return false;
+        throw new Error('error');
       }
     }catch(err) {
-      return false;
+      throw new Error('error');
     }
   }
 
@@ -35,16 +35,18 @@ export default class MonaScoreContract extends BaseContract {
    * @returns Promise resolving to the user's referral code
    */
   public async getReferralCode(address: string): Promise<string> {
+    try{
       const user = await contract.getUser(address);
       if(user && user[5]){
         return user[2];
       }else{
-        return false;
+        throw new Error('error');
       }
     }catch(err) {
-      return false;
+      throw new Error('error');
     }
   }
+  
 
   /**
    * Gets the referrer address for a user
@@ -57,10 +59,10 @@ export default class MonaScoreContract extends BaseContract {
       if(ref){
 	    return ref;
 	  }else{
-	    return false;
+	    throw new Error('error');
 	  }
     }catch(err) {
-      return false;
+      throw new Error('error');
     }
   }
 
@@ -88,10 +90,10 @@ export default class MonaScoreContract extends BaseContract {
         };
         return result;
       }else{
-        return false;
+        throw new Error('error');
       }
     }catch(err) {
-      return false;
+      throw new Error('error');
     }
   }
 
