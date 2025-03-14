@@ -8,9 +8,11 @@ export default function UserRequestsInit(
   bodyParser: BodyParser,
   userHandler: UserRequestHandler
 ) {
+  const jsonBodyParser = bodyParser.json();
+
   app.post(
     userRequestsDefinitions.userRegister.path,
-    bodyParser.json(),
+    jsonBodyParser,
     async (req: Request, res: Response) => {
       await userHandler.handleUserRegister(req, res);
     }
@@ -18,7 +20,7 @@ export default function UserRequestsInit(
 
   app.post(
     userRequestsDefinitions.userClaim.path,
-    bodyParser.json(),
+    jsonBodyParser,
     async (req: Request, res: Response) => {
       await userHandler.handleUserClaim(req, res);
     }
@@ -26,7 +28,7 @@ export default function UserRequestsInit(
 
   app.post(
     userRequestsDefinitions.userMessage.path,
-    bodyParser.json(),
+    jsonBodyParser,
     async (req: Request, res: Response) => {
       await userHandler.handleUserMessage(req, res);
     }

@@ -21,45 +21,59 @@ export default class UserRequestHandler {
    * Handles user registration by processing the request and response.
    */
   async handleUserRegister(req: Request, res: Response) {
-    const { user, tx } = req.body as UserRequestUpdateBody;
+    const { user } = req.body as UserRequestUpdateBody;
 
-    if (!user || !tx) {
+    if (!user) {
       res.status(400).send({ error: 'Invalid request' });
-      return;
-    }
-
-    const userFromContract = await this.monaScoreContract.getUser(user.address);
-
-    if (!userFromContract) {
-      res.status(400).send({ error: 'User not found in evm' });
       return;
     }
 
     const existingUser = await this.dbClient.getUserByAddress(user.address);
 
+    let userToReturn;
     if (!existingUser) {
-      await this.dbClient.addUser(userFromContract);
+      const userFromContract = await this.monaScoreContract.getUser(user.address);
 
-      if (userFromContract.referrer) {
-        const referrerUser = await this.dbClient.getUserByReferralCode(userFromContract.referrer);
-
-        const referrerUserFromContract = await this.monaScoreContract.getUser(referrerUser.address);
-        await this.dbClient.updateUser(referrerUserFromContract);
+      if (!userFromContract) {
+        res.status(400).send({ error: 'User not found in evm' });
+        return;
       }
+
+      userToReturn = { ...userFromContract, messageHistory: { history: [] } };
+
+      await this.dbClient.addUser({ ...userFromContract, messageHistory: { history: [] } });
+
+      if (user.referrer) {
+        const referrerUserFromContract = await this.monaScoreContract
+          .getUser(user.referrer)
+          .catch(() => undefined);
+
+        if (!referrerUserFromContract) {
+          const referrerUser = await this.dbClient.getUserByReferralCode(user.referrer);
+
+          referrerUser &&
+            (await this.dbClient.updateUser({
+              ...referrerUser,
+              points: referrerUser.points + 1,
+            }));
+        } else {
+          await this.dbClient.updateUser(referrerUserFromContract);
+        }
+      }
+    } else {
+      userToReturn = existingUser;
     }
 
-    res
-      .status(200)
-      .send({ points: userFromContract.points, referralCode: userFromContract.referralCode });
+    res.status(200).send({ points: userToReturn.points, referralCode: userToReturn.referralCode });
   }
 
   /**
    * Handles user claim requests by verifying the transaction and updating user data.
    */
   async handleUserClaim(req: Request, res: Response) {
-    const { user, tx } = req.body as UserRequestUpdateBody;
+    const { user } = req.body as UserRequestUpdateBody;
 
-    if (!user || !tx) {
+    if (!user) {
       res.status(400).send({ error: 'Invalid request' });
       return;
     }
@@ -82,9 +96,9 @@ export default class UserRequestHandler {
    * Handles user message requests by verifying the transaction and updating user data.
    */
   async handleUserMessage(req: Request, res: Response) {
-    const { user, tx } = req.body as UserRequestUpdateBody;
+    const { user } = req.body as UserRequestUpdateBody;
 
-    if (!user || !tx) {
+    if (!user) {
       res.status(400).send({ error: 'Invalid request' });
       return;
     }
@@ -103,14 +117,12 @@ export default class UserRequestHandler {
       .send({ points: userFromContract.points, referralCode: userFromContract.referralCode });
   }
 
-  // TODO: Anybody can fetch user data, mb add auth?
   /**
    * Handles user get requests by fetching user data from the database.
    */
   async handleGetUser(req: Request, res: Response) {
-    const { address } = req.params as UserRequestGetParams;
+    const { address } = req.query as UserRequestGetParams;
 
-    // TODO: Fetch from contract or from db?
     const user = await this.dbClient.getUserByAddress(address);
 
     if (!user) {
