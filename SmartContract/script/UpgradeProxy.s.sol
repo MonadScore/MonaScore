@@ -6,7 +6,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {MonaScoreV1} from "../src/MonaScoreV1.sol";
 import {MonaScoreV2} from "../src/MonaScoreV2.sol";
 
-contract UpgradeUUPSProxy is Script {
+contract UpgradeProxy is Script {
     function run() external {
         vm.startBroadcast();
 

@@ -5,7 +5,7 @@ import {Script, console2} from "forge-std/Script.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {MonaScoreV1} from "../src/MonaScoreV1.sol";
 
-contract DeployUUPSProxy is Script {
+contract DeployProxy is Script {
     function run() external {
         vm.startBroadcast();
 

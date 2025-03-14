@@ -128,9 +128,9 @@ contract MonaScoreV1 is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return (user.userAddress, user.points, user.referralCode, user.messageHistory, user.lastClaim, user.registered);
     }
 
-    function version() public pure virtual returns (uint256) {
-        return 1;
-    }
+    // function version() public pure virtual returns (uint256) {
+    //     return 1;
+    // }
 
     // Function required for UUPS proxy
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
