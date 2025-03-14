@@ -1,6 +1,9 @@
 import bodyParser, { BodyParser } from 'body-parser';
 import express, { Express } from 'express';
-import AccountEndpoints from './AccountEndpoints';
+import UserRequestsInit from './UserRequestsInit';
+import DBClient from '../database/DBClient';
+import UserRequestHandler from './UserRequestHandler';
+import MonaScoreContract from '../evm/MonaScoreContract';
 
 /**
  * Creates and initializes an Express application server
@@ -12,10 +15,39 @@ export default function App() {
     private app: Express;
 
     /**
+     * The database client instance used for database operations
+     */
+    private dbClient: DBClient;
+
+    /**
+     * The user request handler instance that processes user-related requests
+     */
+    private userRequestHandler: UserRequestHandler;
+
+    /**
+     * The contracts used in the application
+     */
+    private contracts: {
+      monaScore: MonaScoreContract;
+    };
+
+    /**
      * Initializes the Express app and starts the server
      */
     constructor() {
       this.app = express();
+
+      this.dbClient = new DBClient();
+
+      this.contracts = {
+        monaScore: new MonaScoreContract(),
+      };
+
+      this.userRequestHandler = new UserRequestHandler(this.dbClient, this.contracts.monaScore);
+
+      this.contracts = {
+        monaScore: new MonaScoreContract(),
+      };
 
       this.app.listen(process.env.SERVER_PORT, () => {
         console.log(`Server is running on port ${process.env.SERVER_PORT}`);
@@ -23,19 +55,21 @@ export default function App() {
     }
 
     /**
-     * Registers endpoints with the Express application
-     * @param {Function} registerCb - Callback function to register endpoints
+     * Registers requests with the Express application
+     * @param {Function} registerCb - Callback function to register requests
      * @param {Express} registerCb.app - The Express application instance
      * @param {BodyParser} registerCb.bodyParser - The body-parser middleware
      */
-    public registerEndpoints(registerCb: (app: Express, bodyParser: BodyParser) => void) {
-      registerCb(this.app, bodyParser);
+    public registerRequests(
+      registerCb: (app: Express, bodyParser: BodyParser, userHandler: UserRequestHandler) => void
+    ) {
+      registerCb(this.app, bodyParser, this.userRequestHandler);
 
       return this;
     }
   })();
 
-  server.registerEndpoints(AccountEndpoints);
+  server.registerRequests(UserRequestsInit);
 
   return server;
 }
