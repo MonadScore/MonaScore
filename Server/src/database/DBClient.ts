@@ -1,5 +1,5 @@
 import { User } from '../types';
-import pool from 'db';
+import pool from './db';
 /**
  * Database client for interacting with the database
  */
@@ -9,12 +9,12 @@ export default class DBClient {
    * @param address The user's address
    * @returns Promise resolving to the User object
    */
-  public getUserByAddress(address: string): Promise<User> {
+  public async getUserByAddress(address: string): Promise<User> {
     const client = await pool.connect();
     try {
       const { rows } = await client.query('SELECT address,points,referral_code,referer,last_claim,registered FROM users WHERE address = $1', [address]);
       if(rows && rows.length > 0){
-        const User = {
+        const result = {
           address: rows[0].address,
           points: rows[0].points, 
           referralCode: rows[0].referral_code,
@@ -23,9 +23,9 @@ export default class DBClient {
           lastClaim: rows[0].last_claim, 
           registered: rows[0].registered 
         };
-        return User;
+        return result;
       }else{
-	    return false;
+	    throw new Error('error');
 	  }
     } finally {
       client.release();
@@ -37,16 +37,16 @@ export default class DBClient {
    * @param updatedUser The updated User object
    * @returns Promise resolving to the updated User
    */
-  public updateUser(updatedUser: User): Promise<User> {
+  public async updateUser(updatedUser: User): Promise<User> {
     const client = await pool.connect();
     try {
       let data = Array();
       data.push(updatedUser.points);
-      datapush(new Date(parseInt(updatedUser.lastClaim*1000n)));
+      data.push(new Date(String(updatedUser.lastClaim*1000)));
       data.push(updatedUser.address);
       const { rows } = await client.query("UPDATE users SET (points, last_claim) = ($1, $2) WHERE address = $3 RETURNING *", data);
       if(rows && rows.length > 0){
-        const User = {
+        const result = {
           address: rows[0].address,
           points: rows[0].points, 
           referralCode: rows[0].referral_code,
@@ -55,9 +55,9 @@ export default class DBClient {
           lastClaim: rows[0].last_claim, 
           registered: rows[0].registered 
         };
-        return User;
+        return result;
       }else{
-	    return false;
+	    throw new Error('error');
 	  }
     } finally {
       client.release();
@@ -69,19 +69,19 @@ export default class DBClient {
    * @param user The User object to add
    * @returns Promise resolving to the created User
    */
-  public addUser(user: User): Promise<User> {
+  public async addUser(user: User): Promise<User> {
     const client = await pool.connect();
     try {
       let data = Array();
-        data.push(User.address);
-      data.push(User.points);
-      data.push(User.referralCode);
+        data.push(user.address);
+      data.push(user.points);
+      data.push(user.referralCode);
 	  data.push(true);
 	  data.push('0x0');
-      data.push(new Date(parseInt(User.lastClaim*1000n)));
+      data.push(new Date(String(user.lastClaim*1000)));
 	  const { rows } = await client.query("INSERT INTO users (address, points, referral_code,  last_claim, registered, referrer) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", data);
       if(rows && rows.length > 0){
-        const User = {
+        const result = {
           address: rows[0].address,
           points: rows[0].points, 
           referralCode: rows[0].referral_code,
@@ -90,9 +90,9 @@ export default class DBClient {
           lastClaim: rows[0].last_claim, 
           registered: rows[0].registered 
         };
-        return User;
+        return result;
       }else{
-	    return false;
+	    throw new Error('error');
 	  }
     } finally {
       client.release();
@@ -123,12 +123,12 @@ export default class DBClient {
    * @param referralCode The referral code to search for
    * @returns Promise resolving to the matching User
    */
-  public getUserByReferralCode(referralCode: string): Promise<User> {
+  public async getUserByReferralCode(referralCode: string): Promise<User> {
     const client = await pool.connect();
     try {
       const { rows } = await client.query('SELECT address,points,referral_code,referer,last_claim,registered FROM users WHERE referral_code = $1', [referralCode]);
       if(rows && rows.length > 0){
-        const User = {
+        const result = {
           address: rows[0].address,
           points: rows[0].points, 
           referralCode: rows[0].referral_code,
@@ -137,9 +137,9 @@ export default class DBClient {
           lastClaim: rows[0].last_claim, 
           registered: rows[0].registered 
         };
-        return User;
+        return result;
       }else{
-	    return false;
+	    throw new Error('error');
 	  }
     } finally {
       client.release();

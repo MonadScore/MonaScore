@@ -77,7 +77,7 @@ export default class MonaScoreContract extends BaseContract {
     try {
       const user = await contract.getUser(address);
       if(user && user[5]){
-        const User = {
+        const result = {
           address: user[0],
           points: user[1], 
           referralCode: user[2],
@@ -86,7 +86,7 @@ export default class MonaScoreContract extends BaseContract {
           lastClaim: user[4], 
           registered: user[5] 
         };
-        return User;
+        return result;
       }else{
         return false;
       }
