@@ -77,7 +77,7 @@ export default class DBClient {
       data.push(User.points);
       data.push(User.referralCode);
 	  data.push(true);
-	  data.push('0x0');
+	  data.push('');
       data.push(new Date(parseInt(User.lastClaim*1000n)));
 	  const { rows } = await client.query("INSERT INTO users (address, points, referral_code,  last_claim, registered, referrer) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", data);
       if(rows && rows.length > 0){
