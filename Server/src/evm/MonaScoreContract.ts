@@ -101,6 +101,10 @@ export default class MonaScoreContract extends BaseContract {
           throw new StopRetryError();
         }
 
+        if (error.code === 'INVALID_ARGUMENT') {
+          throw new StopRetryError();
+        }
+
         throw error;
       })
     ).catch(() => undefined)) as any;
