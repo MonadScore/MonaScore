@@ -5,6 +5,7 @@
   "main": "",
   "scripts": {
     "test": "npx jest",
+    "deploy": "export IS_PRODUCTION=deploy && npx ts-node src/index.ts",
     "start:dev": "export IS_PRODUCTION=development && npx ts-node src/index.ts",
     "start:prod": "export IS_PRODUCTION=production && npx ts-node src/index.ts"
   },
