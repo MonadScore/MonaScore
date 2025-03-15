@@ -12,10 +12,11 @@ export const executePromiseWithRetry = async <T>(
     throw new Error('Promise failed after retries');
   }
 
+  let promiseResult: Promise<unknown>;
   try {
-    const promiseResult = await new bb.Promise((resolve) => {
+    promiseResult = (await new bb.Promise((resolve) => {
       resolve(promise);
-    }).timeout(maxTimeToResolve);
+    }).timeout(maxTimeToResolve)) as Promise<T>;
 
     return promiseResult as T;
   } catch (error) {
@@ -31,7 +32,9 @@ export const executePromiseWithRetry = async <T>(
     setTimeout(resolve, delay);
   });
 
-  return executePromiseWithRetry(promise, maxTimeToResolve, retries + 1, delay);
+  return promiseResult!.finally(() =>
+    executePromiseWithRetry(promise, maxTimeToResolve, retries + 1, delay)
+  ) as Promise<T | undefined>;
 };
 
 export const convertContractToUserMessageHistory = (history: string[]): MessageHistory => {

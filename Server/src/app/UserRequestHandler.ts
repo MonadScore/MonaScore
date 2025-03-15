@@ -73,8 +73,15 @@ export default class UserRequestHandler {
   async handleUserClaim(req: Request, res: Response) {
     const { user } = req.body as UserRequestUpdateBody;
 
-    if (!user) {
+    if (!user?.address) {
       res.status(400).send({ error: 'Invalid request' });
+      return;
+    }
+
+    const userFromDB = await this.dbClient.getUserByAddress(user.address);
+
+    if (!userFromDB) {
+      res.status(400).send({ error: 'User not found in database' });
       return;
     }
 

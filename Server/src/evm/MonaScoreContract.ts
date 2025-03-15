@@ -97,11 +97,7 @@ export default class MonaScoreContract extends BaseContract {
   public async getUser(address: string): Promise<User | undefined> {
     const user = (await executePromiseWithRetry(
       this.contract.getUser(address).catch((error) => {
-        if (error.code === 'UNSUPPORTED_OPERATION') {
-          throw new StopRetryError();
-        }
-
-        if (error.code === 'INVALID_ARGUMENT') {
+        if (['UNSUPPORTED_OPERATION', 'INVALID_ARGUMENT'].includes(error.code)) {
           throw new StopRetryError();
         }
 
