@@ -18,7 +18,7 @@ contract MonaScoreTest is Test {
     }
 
     function testRegister() public {
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         (
@@ -46,14 +46,14 @@ contract MonaScoreTest is Test {
     // Test referral registration: user2 registers using user1's referral code.
     function testReferralRegistration() public {
         // User1 registers without referral.
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         // Retrieve user1's referral code.
         (,, string memory referral1,,,) = monaScore.getUser(user1);
 
         // User2 registers using user1's referral code.
-        vm.prank(user2);
+        vm.prank(user2, user2);
         monaScore.register(referral1);
 
         // Check that user1 got a referral bonus.
@@ -67,7 +67,7 @@ contract MonaScoreTest is Test {
 
     // Test the sendMessage functionality that now saves the keccak256 hash.
     function testSendMessage() public {
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         string memory message = "Hello, world!";
@@ -89,7 +89,7 @@ contract MonaScoreTest is Test {
 
     // Test the claimPoints functionality (daily claim with a 24-hour cooldown).
     function testClaimPoints() public {
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         // First daily claim should succeed.

@@ -23,6 +23,8 @@ contract MonaScoreV1_1 {
         uint256 timestamp; // Timestamp when the message was sent
     }
 
+    address[] public userAddresses;
+
     // Mapping from user address to user data.
     mapping(address => User) public users;
     // Mapping for checking if a referral code has been used (code to user address).
@@ -89,6 +91,8 @@ contract MonaScoreV1_1 {
         // Set lastClaim to allow immediate claim after registration.
         user.lastClaim = block.timestamp - 1 days;
         user.registered = true;
+
+        userAddresses.push(msg.sender);
 
         referralToAddress[newReferralCode] = msg.sender;
 
@@ -166,5 +170,38 @@ contract MonaScoreV1_1 {
         return (
             user.userAddress, user.points, user.referralCode, messageHashes, timestamps, user.lastClaim, user.registered
         );
+    }
+
+    /// @notice Returns the list of user addresses sorted by their points in descending order.
+    /// @dev This is a view function that copies and sorts the userAddresses array.
+    function getSortedUsers(uint256 amount) external view returns (address[] memory sortedUsers) {
+        uint256 total = userAddresses.length;
+        // If count is greater than the total number of users, return all users.
+        if (amount > total) {
+            amount = total;
+        }
+
+        // Copy the entire userAddresses array to memory.
+        address[] memory allUsers = new address[](total);
+        for (uint256 i = 0; i < total; i++) {
+            allUsers[i] = userAddresses[i];
+        }
+
+        // Bubble sort the array in descending order by points.
+        for (uint256 i = 0; i < total; i++) {
+            for (uint256 j = i + 1; j < total; j++) {
+                if (users[allUsers[i]].points < users[allUsers[j]].points) {
+                    address temp = allUsers[i];
+                    allUsers[i] = allUsers[j];
+                    allUsers[j] = temp;
+                }
+            }
+        }
+
+        // Allocate and fill the return array with the top 'count' users.
+        sortedUsers = new address[](amount);
+        for (uint256 i = 0; i < amount; i++) {
+            sortedUsers[i] = allUsers[i];
+        }
     }
 }

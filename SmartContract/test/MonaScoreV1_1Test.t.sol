@@ -9,6 +9,7 @@ contract MonaScoreTest is Test {
 
     address user1 = makeAddr("user1");
     address user2 = makeAddr("user2");
+    address user3 = makeAddr("user3");
 
     function setUp() public {
         monaScore = new MonaScoreV1_1();
@@ -18,7 +19,7 @@ contract MonaScoreTest is Test {
     }
 
     function testRegister() public {
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         (
@@ -47,14 +48,14 @@ contract MonaScoreTest is Test {
     // Test referral registration: user2 registers using user1's referral code.
     function testReferralRegistration() public {
         // User1 registers without referral.
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         // Retrieve user1's referral code.
         (,, string memory referral1,,,,) = monaScore.getUser(user1);
 
         // User2 registers using user1's referral code.
-        vm.prank(user2);
+        vm.prank(user2, user2);
         monaScore.register(referral1);
 
         // Check that user1 got a referral bonus.
@@ -68,7 +69,7 @@ contract MonaScoreTest is Test {
 
     // Test the sendMessage functionality that now saves the keccak256 hash.
     function testSendMessage() public {
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         string memory message = "Hello, world!";
@@ -90,7 +91,7 @@ contract MonaScoreTest is Test {
 
     // Test the claimPoints functionality (daily claim with a 24-hour cooldown).
     function testClaimPoints() public {
-        vm.prank(user1);
+        vm.prank(user1, user1);
         monaScore.register("");
 
         // First daily claim should succeed.
@@ -111,5 +112,69 @@ contract MonaScoreTest is Test {
         monaScore.claimPoints();
         (, uint256 newPoints,,,,,) = monaScore.getUser(user1);
         assertEq(newPoints, 2, "After a day, claiming points again should increment points to 2");
+    }
+
+    function testGetSortedUsers() public {
+        // Register three users.
+        vm.prank(user1, user1);
+        monaScore.register("");
+        vm.prank(user2, user2);
+        monaScore.register("");
+        vm.prank(user3, user3);
+        monaScore.register("");
+
+        // Simulate activity:
+        // user1 sends one message (points becomes 1).
+        vm.prank(user1);
+        monaScore.sendMessage("Message from user1");
+
+        // user2 sends two messages (points becomes 2).
+        vm.prank(user2);
+        monaScore.sendMessage("Message from user2 - 1");
+        vm.prank(user2);
+        monaScore.sendMessage("Message from user2 - 2");
+
+        // user3 sends three messages (points becomes 3).
+        vm.prank(user3);
+        monaScore.sendMessage("Message from user3 - 1");
+        vm.prank(user3);
+        monaScore.sendMessage("Message from user3 - 2");
+        vm.prank(user3);
+        monaScore.sendMessage("Message from user3 - 3");
+
+        // Get all sorted users. There are 3 registered users.
+        address[] memory sortedUsers = monaScore.getSortedUsers(3);
+
+        // Expected sorted order (highest points first):
+        // user3 (3 points), user2 (2 points), user1 (1 point).
+        assertEq(sortedUsers[0], user3, "User3 should be first with highest points");
+        assertEq(sortedUsers[1], user2, "User2 should be second");
+        assertEq(sortedUsers[2], user1, "User1 should be third");
+    }
+
+    function testGetSortedUsersWithLimit() public {
+        // Register two users.
+        vm.prank(user1, user1);
+        monaScore.register("");
+        vm.prank(user2, user2);
+        monaScore.register("");
+
+        // user1 sends two messages (points = 2).
+        vm.prank(user1);
+        monaScore.sendMessage("u1 msg 1");
+        vm.prank(user1);
+        monaScore.sendMessage("u1 msg 2");
+
+        // user2 sends one message (points = 1).
+        vm.prank(user2);
+        monaScore.sendMessage("u2 msg 1");
+
+        // Call getSortedUsers asking for 5 users while only 2 are registered.
+        address[] memory sortedUsers = monaScore.getSortedUsers(5);
+        // The returned array length should be 2.
+        assertEq(sortedUsers.length, 2, "Returned array length should match number of registered users");
+        // Expected sorted order: user1 (2 points) then user2 (1 point).
+        assertEq(sortedUsers[0], user1, "User1 should be first (2 points)");
+        assertEq(sortedUsers[1], user2, "User2 should be second (1 point)");
     }
 }

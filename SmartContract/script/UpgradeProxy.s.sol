@@ -15,7 +15,7 @@ contract UpgradeProxy is Script {
 
         // Deploy new implementation
         MonaScoreV2 monaScoreV2 = new MonaScoreV2();
-        console2.log("BoxV2 deployed at:", address(monaScoreV2));
+        console2.log("MonaScoreV2 deployed at:", address(monaScoreV2));
 
         // Upgrade the proxy to use MonaScoreV2
         MonaScoreV1(proxyAddress).upgradeToAndCall(address(monaScoreV2), bytes(""));
