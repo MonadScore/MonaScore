@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 contract Roulette {
     uint256 constant PRIZE_POINTS = 36;
     mapping(address => uint256) public playerPoints;
-    address[] private players; // Список всех игроков
+    address[] private players;
     mapping(address => bool) private isRegistered;
 
     event RouletteSpin(address indexed player, uint256 chosenNumber, uint256 result, bool won);
@@ -29,7 +29,7 @@ contract Roulette {
             playerPoints[msg.sender] += PRIZE_POINTS;
 
             // Добавляем игрока в список, если он еще не играл
-            if (!isRegistered[msg.sender] && playerPoints[msg.sender] == PRIZE_POINTS) {
+            if (!isRegistered[msg.sender]) {
                 isRegistered[msg.sender] = true;
                 players.push(msg.sender);
             }
